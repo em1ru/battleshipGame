@@ -1,13 +1,14 @@
 package View;
 
 import Controller.GameController;
+import Model.Tabuleiro;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
 
 public class TelaMenu extends JFrame {
-    private GameController controller;
+    private final GameController controller;
 
     public TelaMenu(GameController controller) {
         this.controller = controller;
@@ -19,59 +20,51 @@ public class TelaMenu extends JFrame {
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(3, 1));
 
         JButton novoJogoButton = new JButton("Novo Jogo");
-        novoJogoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                iniciarNovoJogo();
-            }
-        });
+        novoJogoButton.addActionListener(e -> iniciarNovoJogo());
 
         JButton carregarJogoButton = new JButton("Carregar Jogo");
-        carregarJogoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                carregarJogo();
-            }
-        });
+        carregarJogoButton.addActionListener(e -> carregarJogo());
 
         JButton sairButton = new JButton("Sair");
-        sairButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
+        sairButton.addActionListener(e -> System.exit(0));
 
         panel.add(novoJogoButton);
         panel.add(carregarJogoButton);
         panel.add(sairButton);
 
-        add(panel);
-
+        add(panel, BorderLayout.CENTER);
         setVisible(true);
     }
 
     private void iniciarNovoJogo() {
+        // Solicita os nomes dos jogadores
         String jogador1 = JOptionPane.showInputDialog(this, "Nome do Jogador 1:");
         String jogador2 = JOptionPane.showInputDialog(this, "Nome do Jogador 2:");
+
         if (jogador1 != null && jogador2 != null && !jogador1.isEmpty() && !jogador2.isEmpty()) {
             controller.iniciarNovoJogo(jogador1, jogador2);
-            dispose(); // Fecha a tela de menu
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Os nomes dos jogadores não podem estar vazios.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void carregarJogo() {
         JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            String caminhoArquivo = fileChooser.getSelectedFile().getAbsolutePath();
-            controller.carregarJogoExistente(caminhoArquivo);
-            dispose(); // Fecha a tela de menu
+        fileChooser.setDialogTitle("Carregar estado do jogo");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt"));
+        int userSelection = fileChooser.showOpenDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToLoad = fileChooser.getSelectedFile();
+            controller.carregarJogoExistente(fileToLoad.getAbsolutePath());
+            dispose();
         }
     }
 }

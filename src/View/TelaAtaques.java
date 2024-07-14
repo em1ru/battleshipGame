@@ -25,7 +25,7 @@ public class TelaAtaques extends JFrame {
         this.controller = controller;
         this.ataquesRestantes = 3; // Cada jogador tem 3 ataques por turno
         initUI();
-        carregarEstadoJogo("caminho/do/seu/arquivo.txt");
+        atualizarInterfaceGrafica(); // Atualiza a interface gráfica com o estado do jogo carregado
     }
 
     private void initUI() {
@@ -95,6 +95,9 @@ public class TelaAtaques extends JFrame {
 
     private void realizarAtaque(char linha, int coluna, JButton cellButton, char jogadorAdversario) {
         if (ataquesRestantes > 0) {
+            if (ataquesRestantes == 3) {
+                salvarButton.setEnabled(false); // Desabilita o botão de salvar após o primeiro ataque
+            }
             String resultado = tabuleiro.atacar(linha, coluna, jogadorAdversario);
             cellButton.setText(resultado.equals("Hit!") ? "X" : "O");
             cellButton.setEnabled(false);
@@ -129,6 +132,7 @@ public class TelaAtaques extends JFrame {
         jogadorAtual = controller.getJogadorAtual(); // Atualiza o jogador atual
         resultadoLabel.setText("Jogador " + jogadorAtual + " - Ataques restantes: " + ataquesRestantes);
         passarVezButton.setEnabled(false);
+        salvarButton.setEnabled(true); // Reabilita o botão de salvar antes do próximo jogador iniciar seus ataques
         atualizarInteratividade();
     }
 
@@ -167,7 +171,7 @@ public class TelaAtaques extends JFrame {
     private void atualizarInterfaceGrafica() {
         int[][] estadoTabuleiroP1 = tabuleiro.getEstado('1');
         int[][] estadoTabuleiroP2 = tabuleiro.getEstado('2');
-    
+
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
                 // Atualiza o tabuleiro do jogador 1
@@ -180,7 +184,7 @@ public class TelaAtaques extends JFrame {
                     botoesTabuleiroP1[i][j].setBackground(Color.BLUE);
                     botoesTabuleiroP1[i][j].setEnabled(false);
                 }
-    
+
                 // Atualiza o tabuleiro do jogador 2
                 if (estadoTabuleiroP2[i][j] == -1) {
                     botoesTabuleiroP2[i][j].setText("X");
@@ -194,11 +198,4 @@ public class TelaAtaques extends JFrame {
             }
         }
     }
-    
-    // Chame este método após carregar o estado do tabuleiro
-    public void carregarEstadoJogo(String caminhoArquivo) {
-        tabuleiro.carregarEstado(caminhoArquivo);
-        atualizarInterfaceGrafica();
-    }
-    
 }

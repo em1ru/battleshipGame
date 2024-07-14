@@ -74,6 +74,6 @@ public class GameController {
 
     public void carregarJogoExistente(String caminhoArquivo) {
         tabuleiro.carregarEstado(caminhoArquivo);
-        iniciarAtaques();
+        iniciarAtaques(); // Inicia a tela de ataques com o estado carregado
     }
 }
