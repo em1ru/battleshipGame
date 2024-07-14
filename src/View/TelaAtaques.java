@@ -4,6 +4,8 @@ import Controller.GameController;
 import Model.Tabuleiro;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
 
 public class TelaAtaques extends JFrame {
     private static final int GRID_SIZE = 15;
@@ -15,6 +17,7 @@ public class TelaAtaques extends JFrame {
     private JButton[][] botoesTabuleiroP1; // Matriz de botões para atualizar a interface facilmente
     private JButton[][] botoesTabuleiroP2; // Matriz de botões para o tabuleiro do jogador 2
     private JButton passarVezButton;
+    private JButton salvarButton;
 
     public TelaAtaques(Tabuleiro tabuleiro, char jogadorAtual, GameController controller) {
         this.tabuleiro = tabuleiro;
@@ -29,42 +32,35 @@ public class TelaAtaques extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-    
         setLayout(new BorderLayout());
-    
+
         JPanel panelCentral = new JPanel(new GridLayout(1, 2));
-    
         JPanel tabuleiroJogador1Panel = criarTabuleiroPanel('1');
         JPanel tabuleiroJogador2Panel = criarTabuleiroPanel('2');
-    
         panelCentral.add(tabuleiroJogador1Panel);
         panelCentral.add(tabuleiroJogador2Panel);
-    
+
         resultadoLabel = new JLabel("Jogador " + jogadorAtual + " - Ataques restantes: " + ataquesRestantes);
         resultadoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    
+
         passarVezButton = new JButton("Passar Vez");
         passarVezButton.setEnabled(false);
         passarVezButton.addActionListener(e -> trocarJogador());
-    
+
+        salvarButton = new JButton("Salvar Jogo");
+        salvarButton.addActionListener(e -> salvarEstadoJogo());
+
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(resultadoLabel, BorderLayout.CENTER);
         southPanel.add(passarVezButton, BorderLayout.EAST);
-    
+        southPanel.add(salvarButton, BorderLayout.WEST);
+
         add(panelCentral, BorderLayout.CENTER);
         add(southPanel, BorderLayout.SOUTH);
-    
+
         setVisible(true);
-    
         atualizarInteratividade();
-    
-        // Adicione log para mostrar o estado do tabuleiro
-        System.out.println("Estado inicial do tabuleiro P1:");
-        tabuleiro.imprimeTabuleiroP1();
-        System.out.println("Estado inicial do tabuleiro P2:");
-        tabuleiro.imprimeTabuleiroP2();
     }
-    
 
     private JPanel criarTabuleiroPanel(char jogador) {
         JPanel tabuleiroPanel = new JPanel(new GridLayout(GRID_SIZE, GRID_SIZE));
@@ -86,9 +82,9 @@ public class TelaAtaques extends JFrame {
                     cellButton.addActionListener(e -> realizarAtaque(linha, coluna, cellButton, '2'));
                 }
                 if (jogador == '1') {
-                    botoesTabuleiroP1[i - 'A'][j] = cellButton; // Armazena o botão na matriz do jogador 1
+                    botoesTabuleiroP1[i - 'A'][j] = cellButton;
                 } else {
-                    botoesTabuleiroP2[i - 'A'][j] = cellButton; // Armazena o botão na matriz do jogador 2
+                    botoesTabuleiroP2[i - 'A'][j] = cellButton;
                 }
                 tabuleiroPanel.add(cellButton);
             }
@@ -132,7 +128,6 @@ public class TelaAtaques extends JFrame {
         jogadorAtual = controller.getJogadorAtual(); // Atualiza o jogador atual
         resultadoLabel.setText("Jogador " + jogadorAtual + " - Ataques restantes: " + ataquesRestantes);
         passarVezButton.setEnabled(false);
-
         atualizarInteratividade();
     }
 
@@ -148,6 +143,23 @@ public class TelaAtaques extends JFrame {
                     botoesTabuleiroP1[i][j].setEnabled(true); // Ativa o tabuleiro do jogador 1
                 }
             }
+        }
+    }
+
+    private void salvarEstadoJogo() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Salvar estado do jogo");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt"));
+        int userSelection = fileChooser.showSaveDialog(this);
+        
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            if (!filePath.endsWith(".txt")) {
+                filePath += ".txt";
+            }
+            tabuleiro.salvarEstado(filePath);
+            JOptionPane.showMessageDialog(this, "Estado do jogo salvo em: " + filePath, "Jogo Salvo", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 }
