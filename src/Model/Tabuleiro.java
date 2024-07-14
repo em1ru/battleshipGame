@@ -1,12 +1,15 @@
 package Model;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;  // Adicione esta linha
 
 public class Tabuleiro {
     private final int[][] tabuleiro_P1 = new int[15][15];
     private final int[][] tabuleiro_P2 = new int[15][15];
+    private List<Observer> observers = new ArrayList<>(); // Lista de observadores
 
     public void criacaoTabuleiros() {
         for (int[] row : tabuleiro_P1) {
@@ -15,18 +18,35 @@ public class Tabuleiro {
         for (int[] row : tabuleiro_P2) {
             Arrays.fill(row, 0);
         }
+        notifyObservers();
+    }
+
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update();
+        }
     }
 
     public void salvarTabuleiroJogador1(int[][] vetor) {
         for (int i = 0; i < 15; i++) {
             System.arraycopy(vetor[i], 0, tabuleiro_P1[i], 0, 15);
         }
+        notifyObservers();
     }
 
     public void salvarTabuleiroJogador2(int[][] vetor) {
         for (int i = 0; i < 15; i++) {
             System.arraycopy(vetor[i], 0, tabuleiro_P2[i], 0, 15);
         }
+        notifyObservers();
     }
 
     public void imprimeTabuleiroP1() {
@@ -53,6 +73,7 @@ public class Tabuleiro {
     public boolean insereEmbarcacao(Embarcacao embarcacao, char linha, int coluna, char jogador) {
         int[][] tabuleiro = (jogador == '1') ? tabuleiro_P1 : tabuleiro_P2;
         boolean sucesso = embarcacao.posicionar(linha, coluna, tabuleiro, embarcacao.tamanho); // Usar tamanho como código
+        notifyObservers();
         return sucesso;
     }
 
@@ -68,6 +89,7 @@ public class Tabuleiro {
             tabuleiroAlvo[indice_linha][coluna] = -1; // Marca como atingido
             System.out.println("Hit! Tabuleiro após ataque:");
             imprimirTabuleiro(tabuleiroAlvo);
+            notifyObservers();
             if (verificarDerrota(jogador == '1' ? '2' : '1')) {
                 return "Hit! Player " + jogador + " wins!";
             }
@@ -76,8 +98,10 @@ public class Tabuleiro {
             tabuleiroAlvo[indice_linha][coluna] = -2; // Marca como tiro na água
             System.out.println("Miss! Tabuleiro após ataque:");
             imprimirTabuleiro(tabuleiroAlvo);
+            notifyObservers();
             return "Miss!";
         }
+        notifyObservers();
         return "Already Hit!";
     }
 
@@ -137,6 +161,7 @@ public class Tabuleiro {
                 }
             }
             validarEstadoTabuleiro(); // Validar estado do tabuleiro após carregar
+            notifyObservers();
         } catch (FileNotFoundException e) {
             System.err.println("Erro ao carregar o estado do jogo: Arquivo não encontrado.");
         } catch (Exception e) {
