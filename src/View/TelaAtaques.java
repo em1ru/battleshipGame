@@ -3,9 +3,9 @@ package View;
 import Controller.GameController;
 import Model.Tabuleiro;
 import java.awt.*;
+import java.io.File;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.io.File;
 
 public class TelaAtaques extends JFrame {
     private static final int GRID_SIZE = 15;
@@ -25,6 +25,7 @@ public class TelaAtaques extends JFrame {
         this.controller = controller;
         this.ataquesRestantes = 3; // Cada jogador tem 3 ataques por turno
         initUI();
+        carregarEstadoJogo("caminho/do/seu/arquivo.txt");
     }
 
     private void initUI() {
@@ -162,4 +163,42 @@ public class TelaAtaques extends JFrame {
             JOptionPane.showMessageDialog(this, "Estado do jogo salvo em: " + filePath, "Jogo Salvo", JOptionPane.INFORMATION_MESSAGE);
         }
     }
+
+    private void atualizarInterfaceGrafica() {
+        int[][] estadoTabuleiroP1 = tabuleiro.getEstado('1');
+        int[][] estadoTabuleiroP2 = tabuleiro.getEstado('2');
+    
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                // Atualiza o tabuleiro do jogador 1
+                if (estadoTabuleiroP1[i][j] == -1) {
+                    botoesTabuleiroP1[i][j].setText("X");
+                    botoesTabuleiroP1[i][j].setBackground(Color.RED);
+                    botoesTabuleiroP1[i][j].setEnabled(false);
+                } else if (estadoTabuleiroP1[i][j] == -2) {
+                    botoesTabuleiroP1[i][j].setText("O");
+                    botoesTabuleiroP1[i][j].setBackground(Color.BLUE);
+                    botoesTabuleiroP1[i][j].setEnabled(false);
+                }
+    
+                // Atualiza o tabuleiro do jogador 2
+                if (estadoTabuleiroP2[i][j] == -1) {
+                    botoesTabuleiroP2[i][j].setText("X");
+                    botoesTabuleiroP2[i][j].setBackground(Color.RED);
+                    botoesTabuleiroP2[i][j].setEnabled(false);
+                } else if (estadoTabuleiroP2[i][j] == -2) {
+                    botoesTabuleiroP2[i][j].setText("O");
+                    botoesTabuleiroP2[i][j].setBackground(Color.BLUE);
+                    botoesTabuleiroP2[i][j].setEnabled(false);
+                }
+            }
+        }
+    }
+    
+    // Chame este método após carregar o estado do tabuleiro
+    public void carregarEstadoJogo(String caminhoArquivo) {
+        tabuleiro.carregarEstado(caminhoArquivo);
+        atualizarInterfaceGrafica();
+    }
+    
 }

@@ -142,7 +142,7 @@ public class Tabuleiro {
         } catch (Exception e) {
             System.err.println("Erro ao carregar o estado do jogo: " + e.getMessage());
         }
-    }
+    }    
 
     public void validarEstadoTabuleiro() {
         System.out.println("Validando estado do tabuleiro após carregamento:");
